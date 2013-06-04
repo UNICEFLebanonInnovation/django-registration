@@ -2,3 +2,7 @@
 tests/
 dist/
 *idea
+
+nosetests.xml
+
+.coverage

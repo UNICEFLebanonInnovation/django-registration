@@ -1,0 +1,7 @@
+django
+coverage
+nosexcover
+mock
+pep8
+django-nose
+sphinx

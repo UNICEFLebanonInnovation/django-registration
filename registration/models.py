@@ -155,6 +155,7 @@ class RegistrationManager(models.Manager):
             except User.DoesNotExist:
                 profile.delete()
 
+
 class RegistrationProfile(models.Model):
     """
     A simple profile which stores an activation key for use during
