@@ -12,6 +12,7 @@ def main():
     minimum necessary to get Django running tests"""
     settings.configure(
         INSTALLED_APPS=(
+            'django.contrib.sites',
             'django.contrib.auth',
             'django.contrib.contenttypes',
             'django.contrib.sessions',
@@ -30,7 +31,10 @@ def main():
         TEMPLATE_DIRS = (
             os.path.join(THIS_DIR, 'templates'),
         ),
-        SITE_ID=0,
+        FIXTURES_DIR=(
+            os.path.join(THIS_DIR, 'fixtures'),
+        ),
+        SITE_ID=1,
     )
 
     call_command('test', 'registration')

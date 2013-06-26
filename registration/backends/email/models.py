@@ -11,7 +11,7 @@ except ImportError:
     datetime_now = datetime.datetime.now
 
 from registration.compat import User
-from registration.models import RegistrationManager
+from registration.models import RegistrationManager, RegistrationProfile
 
 SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
@@ -60,3 +60,10 @@ class EmailRegistrationManager(RegistrationManager):
         activation_key = hashlib.sha1(salt+email).hexdigest()
         return self.create(user=user,
                            activation_key=activation_key)
+
+
+class EmailRegistrationProfile(RegistrationProfile):
+    """
+    Overrides the default profile to use our new manager
+    """
+    objects = EmailRegistrationManager

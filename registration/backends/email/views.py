@@ -7,7 +7,7 @@ from registration.backends.default.views import (
     RegistrationView,
     ActivationView
 )
-from registration.backends.email.models import EmailRegistrationManager
+from registration.backends.email.models import EmailRegistrationProfile
 
 
 class RegistrationView(RegistrationView):
@@ -16,7 +16,7 @@ class RegistrationView(RegistrationView):
     an email address, uses a custom registration manager
 
     """
-    registration_manager = EmailRegistrationManager
+    registration_profile = EmailRegistrationProfile
 
     def register(self, request, **cleaned_data):
         """
@@ -29,9 +29,9 @@ class RegistrationView(RegistrationView):
             site = Site.objects.get_current()
         else:
             site = RequestSite(request)
-        new_user = self.registration_manager.create_inactive_user(email,
-                                                                  password,
-                                                                  site)
+        new_user = self.registration_profile.objects.create_inactive_user(email,
+                                                                          password,
+                                                                          site)
         signals.user_registered.send(sender=self.__class__,
                                      user=new_user,
                                      request=request)
@@ -41,7 +41,7 @@ class RegistrationView(RegistrationView):
 class ActivationView(ActivationView):
     """
     Super class implementation is what we want,
-    just need use our custom manager instead
+    just need use our custom profile instead
 
     """
-    registration_manager = EmailRegistrationManager
+    registration_profile = EmailRegistrationProfile

@@ -75,8 +75,8 @@ class RegistrationView(BaseRegistrationView):
             site = Site.objects.get_current()
         else:
             site = RequestSite(request)
-        new_user = self.registration_manager.create_inactive_user(username, email,
-                                                                  password, site)
+        new_user = self.registration_profile.objects.create_inactive_user(username, email,
+                                                                          password, site)
         signals.user_registered.send(sender=self.__class__,
                                      user=new_user,
                                      request=request)
@@ -118,7 +118,7 @@ class ActivationView(BaseActivationView):
         the class of this backend as the sender.
         
         """
-        activated_user = self.registration_manager.activate_user(activation_key)
+        activated_user = self.registration_profile.objects.activate_user(activation_key)
         if activated_user:
             signals.user_activated.send(sender=self.__class__,
                                         user=activated_user,
