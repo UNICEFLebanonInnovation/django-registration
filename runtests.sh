@@ -3,7 +3,8 @@
 # doesn't stymie you when putting in pdb.set_trace() in tests
 
 find . -name '*.pyc' -exec rm {} \;
-coverage run runtests.py $*
+coverage erase
+coverage run runtests.py $* || echo "Test failed"
 
 if [ $? -eq 1 ]
 then
@@ -12,15 +13,6 @@ fi
 
 # running on the assumption that little goes into most init files
 # and having lots of 100% coverage on empty files can skew results
+coverage xml
 coverage html --omit="settings.py","test_settings.py"
-
-# try to open the page in chrome, but if not present, don't complain
-which google-chrome
-if [ $? -eq 0 ]
-then
-  google-chrome htmlcov/index.html
-else
-  echo "Please see coverage report in file://$PWD/htmlcov/index.html"
-fi
-
-cd ..
+pep8 --ignore=W293,E128,E501,E127 --exclude=migrations,manage.py,docs,assets,settings.py -r registration > pep8.txt || echo "PEP-8 violations."
