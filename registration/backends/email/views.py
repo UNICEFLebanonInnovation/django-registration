@@ -7,7 +7,8 @@ from registration.backends.default.views import (
     RegistrationView,
     ActivationView
 )
-from registration.backends.email.models import EmailRegistrationProfile
+from registration.models import EmailRegistrationProfile
+from registration.forms import EmailRegistrationForm
 
 
 class RegistrationView(RegistrationView):
@@ -17,6 +18,7 @@ class RegistrationView(RegistrationView):
 
     """
     registration_profile = EmailRegistrationProfile
+    form_class = EmailRegistrationForm
 
     def register(self, request, **cleaned_data):
         """
@@ -29,6 +31,7 @@ class RegistrationView(RegistrationView):
             site = Site.objects.get_current()
         else:
             site = RequestSite(request)
+
         new_user = self.registration_profile.objects.create_inactive_user(email,
                                                                           password,
                                                                           site)

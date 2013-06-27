@@ -12,6 +12,7 @@ def main():
     minimum necessary to get Django running tests"""
     settings.configure(
         INSTALLED_APPS=(
+            'rtl_django_tools',
             'django.contrib.sites',
             'django.contrib.auth',
             'django.contrib.contenttypes',
