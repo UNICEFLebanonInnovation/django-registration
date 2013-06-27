@@ -5,12 +5,10 @@ from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.test.utils import override_settings
+from django.contrib.auth.tests.utils import skipIfCustomUser
 
-from registration import signals
-from registration.admin import RegistrationAdmin
 from registration.compat import User
-from registration.forms import RegistrationForm
-from registration.backends.email.views import RegistrationView
 from registration.models import EmailRegistrationProfile
 from registration.forms import EmailRegistrationForm
 
@@ -32,10 +30,6 @@ class EmailBackendViewTests(TestCase):
         if self.old_activation is None:
             settings.ACCOUNT_ACTIVATION_DAYS = 7  # pragma: no cover
 
-        # provide a user model that does not rely username
-        self.old_user_model = getattr(settings, 'AUTH_USER_MODEL', 'auth.user')
-        settings.AUTH_USER_MODEL = 'rtl_django_tools.User'
-
     def tearDown(self):
         """
         Yank ``ACCOUNT_ACTIVATION_DAYS`` back out if it wasn't
@@ -45,9 +39,7 @@ class EmailBackendViewTests(TestCase):
         if self.old_activation is None:
             settings.ACCOUNT_ACTIVATION_DAYS = self.old_activation  # pragma: no cover
 
-        # set the original user model
-        settings.AUTH_USER_MODEL = self.old_user_model
-
+    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_allow(self):
         """
         The setting ``REGISTRATION_OPEN`` appropriately controls
@@ -66,7 +58,7 @@ class EmailBackendViewTests(TestCase):
         # the 'registration is closed' message.
         resp = self.client.get(reverse('registration_register'))
         self.assertRedirects(resp, reverse('registration_disallowed'))
-        
+
         resp = self.client.post(reverse('registration_register'),
                                 data={'email': 'bob@example.com',
                                       'password1': 'secret',
@@ -75,11 +67,12 @@ class EmailBackendViewTests(TestCase):
 
         settings.REGISTRATION_OPEN = old_allowed
 
+    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_registration_get(self):
         """
         HTTP ``GET`` to the registration view uses the appropriate
         template and populates a registration form into the context.
-        
+
         """
         resp = self.client.get(reverse('registration_register'))
         self.assertEqual(200, resp.status_code)
@@ -88,6 +81,7 @@ class EmailBackendViewTests(TestCase):
         self.failUnless(isinstance(resp.context['form'],
                         EmailRegistrationForm))
 
+    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_registration(self):
         """
         Registration creates a new inactive account and a new profile
@@ -108,18 +102,19 @@ class EmailBackendViewTests(TestCase):
 
         # New user must not be active.
         self.failIf(new_user.is_active)
-        
+
         # A registration profile was created, and an activation email
         # was sent.
         self.assertEqual(EmailRegistrationProfile.objects.count(), 1)
         self.assertEqual(len(mail.outbox), 1)
 
+    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_registration_no_sites(self):
         """
         Registration still functions properly when
         ``django.contrib.sites`` is not installed; the fallback will
         be a ``RequestSite`` instance.
-        
+
         """
         Site._meta.installed = False
 
@@ -135,16 +130,17 @@ class EmailBackendViewTests(TestCase):
         self.assertEqual(new_user.email, 'bob@example.com')
 
         self.failIf(new_user.is_active)
-        
+
         self.assertEqual(EmailRegistrationProfile.objects.count(), 1)
         self.assertEqual(len(mail.outbox), 1)
 
         Site._meta.installed = True
 
+    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_registration_failure(self):
         """
         Registering with invalid data fails.
-        
+
         """
         resp = self.client.post(reverse('registration_register'),
                                 data={'email': 'bob@example.com',
@@ -154,10 +150,11 @@ class EmailBackendViewTests(TestCase):
         self.failIf(resp.context['form'].is_valid())
         self.assertEqual(0, len(mail.outbox))
 
+    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_activation(self):
         """
         Activation of an account functions properly.
-        
+
         """
         resp = self.client.post(reverse('registration_register'),
                                 data={'email': 'bob@example.com',
@@ -171,6 +168,7 @@ class EmailBackendViewTests(TestCase):
                                        kwargs={'activation_key': profile.activation_key}))
         self.assertRedirects(resp, reverse('registration_activation_complete'))
 
+    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_activation_expired(self):
         """
         An expired account can't be activated.
