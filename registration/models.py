@@ -280,10 +280,7 @@ class EmailRegistrationManager(RegistrationManager):
         user. To disable this, pass ``send_email=False``.
 
         """
-        from django.contrib.auth import get_user_model
-        print get_user_model()
-        new_user = User.objects.create_user(email=email, password=password)
-        print new_user
+        new_user = User.objects.create_user(email, password=password)
         new_user.is_active = False
         new_user.save()
 
