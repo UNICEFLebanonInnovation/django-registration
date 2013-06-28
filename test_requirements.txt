@@ -1,0 +1,9 @@
+django>=1.5
+coverage
+nosexcover
+mock
+pep8
+django-nose
+sphinx
+# provides a user model that does not have a username
+git+git://github.com/Rethought/rtl_django_tools.git

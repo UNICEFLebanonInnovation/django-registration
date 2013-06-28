@@ -1,4 +1,8 @@
 *.pyc
-tests/
 dist/
 *idea
+nosetests.xml
+.coverage
+htmlcov/
+coverage.xml
+pep8.txt

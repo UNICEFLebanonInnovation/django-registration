@@ -1,0 +1,3 @@
+{% comment %}
+Blank template just for testing
+{% endcomment %}

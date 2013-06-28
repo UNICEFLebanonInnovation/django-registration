@@ -9,6 +9,15 @@ from django.views.generic.edit import FormView
 
 from registration import signals
 from registration.forms import RegistrationForm
+from registration.models import RegistrationProfile
+
+
+class RegistrationProfileMixin(object):
+
+    registration_profile = RegistrationProfile
+
+    def get_registration_manager(self):
+        return self.registration_profile
 
 
 class _RequestPassingFormView(FormView):
@@ -57,7 +66,7 @@ class _RequestPassingFormView(FormView):
         return super(_RequestPassingFormView, self).form_invalid(form)
 
 
-class RegistrationView(_RequestPassingFormView):
+class RegistrationView(RegistrationProfileMixin, _RequestPassingFormView):
     """
     Base class for user registration views.
     
@@ -109,7 +118,7 @@ class RegistrationView(_RequestPassingFormView):
         raise NotImplementedError
                 
 
-class ActivationView(TemplateView):
+class ActivationView(RegistrationProfileMixin, TemplateView):
     """
     Base class for user activation views.
     

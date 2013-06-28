@@ -26,7 +26,6 @@ class RegistrationManager(models.Manager):
     The methods defined here provide shortcuts for account creation
     and activation (including generation and emailing of activation
     keys), and for cleaning out expired inactive accounts.
-    
     """
     def activate_user(self, activation_key):
         """
@@ -45,7 +44,6 @@ class RegistrationManager(models.Manager):
         deactivated by site administrators, the activation key is
         reset to the string constant ``RegistrationProfile.ACTIVATED``
         after successful activation.
-
         """
         # Make sure the key we're trying conforms to the pattern of a
         # SHA1 hash; if it doesn't, no point trying to look it up in
@@ -101,7 +99,7 @@ class RegistrationManager(models.Manager):
         username = user.username
         if isinstance(username, unicode):
             username = username.encode('utf-8')
-        activation_key = hashlib.sha1(salt+username).hexdigest()
+        activation_key = hashlib.sha1(salt + username).hexdigest()
         return self.create(user=user,
                            activation_key=activation_key)
         
@@ -155,6 +153,7 @@ class RegistrationManager(models.Manager):
             except User.DoesNotExist:
                 profile.delete()
 
+
 class RegistrationProfile(models.Model):
     """
     A simple profile which stores an activation key for use during
@@ -207,9 +206,11 @@ class RegistrationProfile(models.Model):
            method returns ``True``.
         
         """
-        expiration_date = datetime.timedelta(days=settings.ACCOUNT_ACTIVATION_DAYS)
+        expiration_date = datetime.timedelta(
+            days=settings.ACCOUNT_ACTIVATION_DAYS)
         return self.activation_key == self.ACTIVATED or \
-               (self.user.date_joined + expiration_date <= datetime_now())
+            (self.user.date_joined +
+             expiration_date <= datetime_now())
     activation_key_expired.boolean = True
 
     def send_activation_email(self, site):
@@ -262,4 +263,56 @@ class RegistrationProfile(models.Model):
                                    ctx_dict)
         
         self.user.email_user(subject, message, settings.DEFAULT_FROM_EMAIL)
-    
+
+
+class EmailRegistrationManager(RegistrationManager):
+    """
+    Custom manager for registering just with an email address.
+
+    """
+    def create_inactive_user(self, email, password, site, send_email=True):
+        """
+        Create a new, inactive ``User``, generate a
+        ``RegistrationProfile`` and email its activation key to the
+        ``User``, returning the new ``User``.
+
+        By default, an activation email will be sent to the new
+        user. To disable this, pass ``send_email=False``.
+
+        """
+        new_user = User.objects.create_user(email, password=password)
+        new_user.is_active = False
+        new_user.save()
+
+        registration_profile = self.create_profile(new_user)
+
+        if send_email:
+            registration_profile.send_activation_email(site)
+
+        return new_user
+    create_inactive_user = transaction.commit_on_success(create_inactive_user)
+
+    def create_profile(self, user):
+        """
+        Create a ``RegistrationProfile`` for a given
+        ``User``, and return the ``RegistrationProfile``.
+
+        The activation key for the ``RegistrationProfile`` will be a
+        SHA1 hash, generated from a combination of the ``User``'s
+        email and a random salt.
+
+        """
+        salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
+        email = user.email
+        if isinstance(email, unicode):
+            email = email.encode('utf-8')
+        activation_key = hashlib.sha1(salt + email).hexdigest()
+        return self.create(user=user,
+                           activation_key=activation_key)
+
+
+class EmailRegistrationProfile(RegistrationProfile):
+    """
+    Overrides the default profile to use our new manager
+    """
+    objects = EmailRegistrationManager()
