@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.contrib.auth.tests.utils import skipIfCustomUser
 
 from registration.compat import User
 from registration.forms import RegistrationForm
@@ -9,6 +10,7 @@ from registration.forms import RegistrationForm
 class SimpleBackendViewTests(TestCase):
     urls = 'registration.backends.simple.urls'
 
+    @skipIfCustomUser
     def test_allow(self):
         """
         The setting ``REGISTRATION_OPEN`` appropriately controls
@@ -50,6 +52,7 @@ class SimpleBackendViewTests(TestCase):
         self.failUnless(isinstance(resp.context['form'],
                         RegistrationForm))
 
+    @skipIfCustomUser
     def test_registration(self):
         """
         Registration creates a new account and logs the user in.
@@ -75,6 +78,7 @@ class SimpleBackendViewTests(TestCase):
         resp = self.client.get(reverse('registration_register'))
         self.failUnless(resp.context['user'].is_authenticated())
 
+    @skipIfCustomUser
     def test_registration_failure(self):
         """
         Registering with invalid data fails.

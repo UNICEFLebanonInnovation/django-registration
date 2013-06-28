@@ -12,6 +12,7 @@ def main():
     minimum necessary to get Django running tests"""
     settings.configure(
         INSTALLED_APPS=(
+            'rtl_django_tools',
             'django.contrib.sites',
             'django.contrib.auth',
             'django.contrib.contenttypes',
@@ -35,6 +36,7 @@ def main():
             os.path.join(THIS_DIR, 'fixtures'),
         ),
         SITE_ID=1,
+        AUTH_USER_MODEL='rtl_django_tools.User',
     )
 
     call_command('test', 'registration')

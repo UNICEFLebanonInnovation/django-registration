@@ -7,6 +7,7 @@ from django.core import mail
 from django.core import management
 from django.test import TestCase
 from django.utils.hashcompat import sha_constructor
+from django.contrib.auth.tests.utils import skipIfCustomUser
 
 from registration.compat import User
 from registration.models import RegistrationProfile
@@ -28,6 +29,7 @@ class RegistrationModelTests(TestCase):
     def tearDown(self):
         settings.ACCOUNT_ACTIVATION_DAYS = self.old_activation
 
+    @skipIfCustomUser
     def test_profile_creation(self):
         """
         Creating a registration profile for a user populates the
@@ -43,6 +45,7 @@ class RegistrationModelTests(TestCase):
         self.assertEqual(unicode(profile),
                          "Registration information for alice")
 
+    @skipIfCustomUser
     def test_activation_email(self):
         """
         ``RegistrationProfile.send_activation_email`` sends an
@@ -54,6 +57,7 @@ class RegistrationModelTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, [self.user_info['email']])
 
+    @skipIfCustomUser
     def test_user_creation(self):
         """
         Creating a new user populates the correct data, and sets the
@@ -67,6 +71,7 @@ class RegistrationModelTests(TestCase):
         self.failUnless(new_user.check_password('swordfish'))
         self.failIf(new_user.is_active)
 
+    @skipIfCustomUser
     def test_user_creation_email(self):
         """
         By default, creating a new user sends an activation email.
@@ -77,6 +82,7 @@ class RegistrationModelTests(TestCase):
             **self.user_info)
         self.assertEqual(len(mail.outbox), 1)
 
+    @skipIfCustomUser
     def test_user_creation_no_email(self):
         """
         Passing ``send_email=False`` when creating a new user will not
@@ -88,6 +94,7 @@ class RegistrationModelTests(TestCase):
             **self.user_info)
         self.assertEqual(len(mail.outbox), 0)
 
+    @skipIfCustomUser
     def test_unexpired_account(self):
         """
         ``RegistrationProfile.activation_key_expired()`` is ``False``
@@ -99,6 +106,7 @@ class RegistrationModelTests(TestCase):
         profile = RegistrationProfile.objects.get(user=new_user)
         self.failIf(profile.activation_key_expired())
 
+    @skipIfCustomUser
     def test_expired_account(self):
         """
         ``RegistrationProfile.activation_key_expired()`` is ``True``
@@ -113,6 +121,7 @@ class RegistrationModelTests(TestCase):
         profile = RegistrationProfile.objects.get(user=new_user)
         self.failUnless(profile.activation_key_expired())
 
+    @skipIfCustomUser
     def test_valid_activation(self):
         """
         Activating a user within the permitted window makes the
@@ -132,6 +141,7 @@ class RegistrationModelTests(TestCase):
         profile = RegistrationProfile.objects.get(user=new_user)
         self.assertEqual(profile.activation_key, RegistrationProfile.ACTIVATED)
 
+    @skipIfCustomUser
     def test_expired_activation(self):
         """
         Attempting to activate outside the permitted window does not
@@ -166,6 +176,7 @@ class RegistrationModelTests(TestCase):
         """
         self.failIf(RegistrationProfile.objects.activate_user('foo'))
 
+    @skipIfCustomUser
     def test_activation_already_activated(self):
         """
         Attempting to re-activate an already-activated account fails.
@@ -192,6 +203,7 @@ class RegistrationModelTests(TestCase):
         invalid_key = sha_constructor('foo').hexdigest()
         self.failIf(RegistrationProfile.objects.activate_user(invalid_key))
 
+    @skipIfCustomUser
     def test_expired_user_deletion(self):
         """
         ``RegistrationProfile.objects.delete_expired_users()`` only
@@ -213,18 +225,22 @@ class RegistrationModelTests(TestCase):
         self.assertEqual(RegistrationProfile.objects.count(), 1)
         self.assertRaises(User.DoesNotExist, User.objects.get, username='bob')
 
+    @skipIfCustomUser
     def test_management_command(self):
         """
         The ``cleanupregistration`` management command properly
         deletes expired accounts.
         """
-        new_user = RegistrationProfile.objects.create_inactive_user(site=Site.objects.get_current(),
-                                                                    **self.user_info)
-        expired_user = RegistrationProfile.objects.create_inactive_user(site=Site.objects.get_current(),
-                                                                        username='bob',
-                                                                        password='secret',
-                                                                        email='bob@example.com')
-        expired_user.date_joined -= datetime.timedelta(days=settings.ACCOUNT_ACTIVATION_DAYS + 1)
+        new_user = RegistrationProfile.objects.create_inactive_user(
+            site=Site.objects.get_current(),
+            **self.user_info)
+        expired_user = RegistrationProfile.objects.create_inactive_user(
+            site=Site.objects.get_current(),
+            username='bob',
+            password='secret',
+            email='bob@example.com')
+        expired_user.date_joined -= datetime.timedelta(
+            days=settings.ACCOUNT_ACTIVATION_DAYS + 1)
         expired_user.save()
 
         management.call_command('cleanupregistration')
