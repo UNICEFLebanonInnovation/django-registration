@@ -72,8 +72,7 @@ urlpatterns = patterns(
         register,
         {'success_url': 'registration_test_custom_success_url',
          'backend': 'registration.backends.default.DefaultBackend'},
-        name='registration_test_register_success_url'
-    ),
+        name='registration_test_register_success_url'),
     # Pattern for custom redirect set above.
     url(r'^custom-success/$',
         direct_to_template,
