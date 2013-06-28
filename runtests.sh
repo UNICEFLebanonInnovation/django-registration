@@ -15,4 +15,4 @@ fi
 # and having lots of 100% coverage on empty files can skew results
 coverage xml
 coverage html
-pep8 --ignore=W293,E128,E501,E127 --exclude=migrations,manage.py,docs,assets,settings.py -r registration > pep8.txt || echo "PEP-8 violations."
+pep8 -r registration > pep8.txt || echo "PEP-8 violations."
