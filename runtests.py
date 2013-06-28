@@ -36,6 +36,7 @@ def main():
             os.path.join(THIS_DIR, 'fixtures'),
         ),
         SITE_ID=1,
+        AUTH_USER_MODEL='rtl_django_tools.User',
     )
 
     call_command('test', 'registration')

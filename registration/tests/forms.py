@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.contrib.auth.tests.utils import skipIfCustomUser
 
 from registration import forms
 from registration.compat import User
@@ -9,6 +10,7 @@ class RegistrationFormTests(TestCase):
     Test the default registration forms.
 
     """
+    @skipIfCustomUser
     def test_registration_form(self):
         """
         Test that ``RegistrationForm`` enforces username constraints
@@ -52,6 +54,7 @@ class RegistrationFormTests(TestCase):
                                             'password2': 'foo'})
         self.failUnless(form.is_valid())
 
+    @skipIfCustomUser
     def test_registration_form_tos(self):
         """
         Test that ``RegistrationFormTermsOfService`` requires
@@ -73,6 +76,7 @@ class RegistrationFormTests(TestCase):
                                                           'tos': 'on'})
         self.failUnless(form.is_valid())
 
+    @skipIfCustomUser
     def test_registration_form_unique_email(self):
         """
         Test that ``RegistrationFormUniqueEmail`` validates uniqueness
@@ -97,6 +101,7 @@ class RegistrationFormTests(TestCase):
                                                        'password2': 'foo'})
         self.failUnless(form.is_valid())
 
+    @skipIfCustomUser
     def test_registration_form_no_free_email(self):
         """
         Test that ``RegistrationFormNoFreeEmail`` disallows
@@ -112,7 +117,8 @@ class RegistrationFormTests(TestCase):
             form = forms.RegistrationFormNoFreeEmail(data=invalid_data)
             self.failIf(form.is_valid())
             self.assertEqual(form.errors['email'],
-                             [u"Registration using free email addresses is prohibited. Please supply a different email address."])
+                             [u"Registration using free email addresses is prohibited. "
+                              u"Please supply a different email address."])
 
         base_data['email'] = 'foo@example.com'
         form = forms.RegistrationFormNoFreeEmail(data=base_data)

@@ -5,12 +5,13 @@ from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.test.utils import override_settings
-from django.contrib.auth.tests.utils import skipIfCustomUser
 
+from registration import signals
+from registration.admin import RegistrationAdmin
 from registration.compat import User
-from registration.models import EmailRegistrationProfile
 from registration.forms import EmailRegistrationForm
+from registration.backends.email.views import RegistrationView
+from registration.models import EmailRegistrationProfile
 
 
 class EmailBackendViewTests(TestCase):
@@ -39,7 +40,6 @@ class EmailBackendViewTests(TestCase):
         if self.old_activation is None:
             settings.ACCOUNT_ACTIVATION_DAYS = self.old_activation  # pragma: no cover
 
-    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_allow(self):
         """
         The setting ``REGISTRATION_OPEN`` appropriately controls
@@ -67,7 +67,6 @@ class EmailBackendViewTests(TestCase):
 
         settings.REGISTRATION_OPEN = old_allowed
 
-    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_registration_get(self):
         """
         HTTP ``GET`` to the registration view uses the appropriate
@@ -81,7 +80,6 @@ class EmailBackendViewTests(TestCase):
         self.failUnless(isinstance(resp.context['form'],
                         EmailRegistrationForm))
 
-    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_registration(self):
         """
         Registration creates a new inactive account and a new profile
@@ -108,7 +106,6 @@ class EmailBackendViewTests(TestCase):
         self.assertEqual(EmailRegistrationProfile.objects.count(), 1)
         self.assertEqual(len(mail.outbox), 1)
 
-    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_registration_no_sites(self):
         """
         Registration still functions properly when
@@ -136,7 +133,6 @@ class EmailBackendViewTests(TestCase):
 
         Site._meta.installed = True
 
-    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_registration_failure(self):
         """
         Registering with invalid data fails.
@@ -150,7 +146,6 @@ class EmailBackendViewTests(TestCase):
         self.failIf(resp.context['form'].is_valid())
         self.assertEqual(0, len(mail.outbox))
 
-    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_activation(self):
         """
         Activation of an account functions properly.
@@ -168,7 +163,6 @@ class EmailBackendViewTests(TestCase):
                                        kwargs={'activation_key': profile.activation_key}))
         self.assertRedirects(resp, reverse('registration_activation_complete'))
 
-    @override_settings(AUTH_USER_MODEL='rtl_django_tools.User')
     def test_activation_expired(self):
         """
         An expired account can't be activated.
