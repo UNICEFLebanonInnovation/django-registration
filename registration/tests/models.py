@@ -231,13 +231,16 @@ class RegistrationModelTests(TestCase):
         The ``cleanupregistration`` management command properly
         deletes expired accounts.
         """
-        new_user = RegistrationProfile.objects.create_inactive_user(site=Site.objects.get_current(),
-                                                                    **self.user_info)
-        expired_user = RegistrationProfile.objects.create_inactive_user(site=Site.objects.get_current(),
-                                                                        username='bob',
-                                                                        password='secret',
-                                                                        email='bob@example.com')
-        expired_user.date_joined -= datetime.timedelta(days=settings.ACCOUNT_ACTIVATION_DAYS + 1)
+        new_user = RegistrationProfile.objects.create_inactive_user(
+            site=Site.objects.get_current(),
+            **self.user_info)
+        expired_user = RegistrationProfile.objects.create_inactive_user(
+            site=Site.objects.get_current(),
+            username='bob',
+            password='secret',
+            email='bob@example.com')
+        expired_user.date_joined -= datetime.timedelta(
+            days=settings.ACCOUNT_ACTIVATION_DAYS + 1)
         expired_user.save()
 
         management.call_command('cleanupregistration')

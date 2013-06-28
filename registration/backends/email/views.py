@@ -32,12 +32,14 @@ class RegistrationView(RegistrationView):
         else:
             site = RequestSite(request)
 
-        new_user = self.registration_profile.objects.create_inactive_user(email,
-                                                                          password,
-                                                                          site)
-        signals.user_registered.send(sender=self.__class__,
-                                     user=new_user,
-                                     request=request)
+        new_user = self.registration_profile.objects.create_inactive_user(
+            email,
+            password,
+            site)
+        signals.user_registered.send(
+            sender=self.__class__,
+            user=new_user,
+            request=request)
         return new_user
 
 

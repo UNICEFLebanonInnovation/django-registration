@@ -27,7 +27,8 @@ class EmailBackendViewTests(TestCase):
         and set ``ACCOUNT_ACTIVATION_DAYS`` if it's not set already.
 
         """
-        self.old_activation = getattr(settings, 'ACCOUNT_ACTIVATION_DAYS', None)
+        self.old_activation = getattr(
+            settings, 'ACCOUNT_ACTIVATION_DAYS', None)
         if self.old_activation is None:
             settings.ACCOUNT_ACTIVATION_DAYS = 7  # pragma: no cover
 
@@ -38,7 +39,8 @@ class EmailBackendViewTests(TestCase):
 
         """
         if self.old_activation is None:
-            settings.ACCOUNT_ACTIVATION_DAYS = self.old_activation  # pragma: no cover
+            settings.ACCOUNT_ACTIVATION_DAYS = \
+                self.old_activation  # pragma: no cover
 
     def test_allow(self):
         """
@@ -156,11 +158,13 @@ class EmailBackendViewTests(TestCase):
                                       'password1': 'secret',
                                       'password2': 'secret'})
 
-        profile = EmailRegistrationProfile.objects.get(user__email='bob@example.com')
+        profile = EmailRegistrationProfile.objects.get(
+            user__email='bob@example.com')
 
-        resp = self.client.get(reverse('registration_activate',
-                                       args=(),
-                                       kwargs={'activation_key': profile.activation_key}))
+        resp = self.client.get(
+            reverse('registration_activate',
+                    args=(),
+                    kwargs={'activation_key': profile.activation_key}))
         self.assertRedirects(resp, reverse('registration_activation_complete'))
 
     def test_activation_expired(self):
@@ -173,14 +177,17 @@ class EmailBackendViewTests(TestCase):
                                       'password1': 'secret',
                                       'password2': 'secret'})
 
-        profile = EmailRegistrationProfile.objects.get(user__email='bob@example.com')
+        profile = EmailRegistrationProfile.objects.get(
+            user__email='bob@example.com')
         user = profile.user
-        user.date_joined -= datetime.timedelta(days=settings.ACCOUNT_ACTIVATION_DAYS)
+        user.date_joined -= datetime.timedelta(
+            days=settings.ACCOUNT_ACTIVATION_DAYS)
         user.save()
 
-        resp = self.client.get(reverse('registration_activate',
-                                       args=(),
-                                       kwargs={'activation_key': profile.activation_key}))
+        resp = self.client.get(
+            reverse('registration_activate',
+                    args=(),
+                    kwargs={'activation_key': profile.activation_key}))
 
         self.assertEqual(200, resp.status_code)
         self.assertTemplateUsed(resp, 'registration/activate.html')
