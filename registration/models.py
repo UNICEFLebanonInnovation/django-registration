@@ -26,7 +26,6 @@ class RegistrationManager(models.Manager):
     The methods defined here provide shortcuts for account creation
     and activation (including generation and emailing of activation
     keys), and for cleaning out expired inactive accounts.
-    
     """
     def activate_user(self, activation_key):
         """
@@ -45,7 +44,6 @@ class RegistrationManager(models.Manager):
         deactivated by site administrators, the activation key is
         reset to the string constant ``RegistrationProfile.ACTIVATED``
         after successful activation.
-
         """
         # Make sure the key we're trying conforms to the pattern of a
         # SHA1 hash; if it doesn't, no point trying to look it up in
