@@ -4,3 +4,5 @@ dist/
 nosetests.xml
 .coverage
 htmlcov/
+coverage.xml
+pep8.txt
