@@ -1,3 +1,6 @@
+
+[![Build Status](https://travis-ci.org/Rethought/django-registration.png?branch=master,develop)](https://travis-ci.org/Rethought/django-registration)
+
 ========================
 Django user registration
 ========================
