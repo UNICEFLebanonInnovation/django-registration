@@ -20,27 +20,29 @@ class RegistrationView(RegistrationView):
     registration_profile = EmailRegistrationProfile
     form_class = EmailRegistrationForm
 
-    def register(self, request, **cleaned_data):
+    def register(self, request, send_email=True, **cleaned_data):
         """
         Given a email address and password, register a new
         user account, which will initially be inactive.
 
         """
-        email, password = cleaned_data['email'], cleaned_data['password1']
         if Site._meta.installed:
             site = Site.objects.get_current()
         else:
             site = RequestSite(request)
 
-        new_user = self.registration_profile.objects.create_inactive_user(
-            email,
-            password,
-            site)
+        user = self.registration_profile.objects.create_inactive_user(
+            site,
+            send_email,
+            **cleaned_data
+        )
+
         signals.user_registered.send(
             sender=self.__class__,
-            user=new_user,
+            user=user,
             request=request)
-        return new_user
+
+        return user
 
 
 class ActivationView(ActivationView):

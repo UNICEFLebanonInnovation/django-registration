@@ -62,8 +62,7 @@ class RegistrationManager(models.Manager):
                 return user
         return False
     
-    def create_inactive_user(self, username, email, password,
-                             site, send_email=True):
+    def create_inactive_user(self, site, send_email=True, **cleaned_data):
         """
         Create a new, inactive ``User``, generate a
         ``RegistrationProfile`` and email its activation key to the
@@ -73,14 +72,19 @@ class RegistrationManager(models.Manager):
         user. To disable this, pass ``send_email=False``.
         
         """
+        username, email, password = \
+            cleaned_data['username'], \
+            cleaned_data['email'], \
+            cleaned_data['password1']
+
         new_user = User.objects.create_user(username, email, password)
         new_user.is_active = False
         new_user.save()
 
-        registration_profile = self.create_profile(new_user)
+        profile = self.create_profile(new_user)
 
         if send_email:
-            registration_profile.send_activation_email(site)
+            profile.send_activation_email(site)
 
         return new_user
     create_inactive_user = transaction.commit_on_success(create_inactive_user)
@@ -270,7 +274,7 @@ class EmailRegistrationManager(RegistrationManager):
     Custom manager for registering just with an email address.
 
     """
-    def create_inactive_user(self, email, password, site, send_email=True):
+    def create_inactive_user(self, site, send_email=True, **cleaned_data):
         """
         Create a new, inactive ``User``, generate a
         ``RegistrationProfile`` and email its activation key to the
@@ -280,14 +284,18 @@ class EmailRegistrationManager(RegistrationManager):
         user. To disable this, pass ``send_email=False``.
 
         """
+        email, password = \
+            cleaned_data['email'], \
+            cleaned_data['password1']
+
         new_user = User.objects.create_user(email, password=password)
         new_user.is_active = False
         new_user.save()
 
-        registration_profile = self.create_profile(new_user)
+        profile = self.create_profile(new_user)
 
         if send_email:
-            registration_profile.send_activation_email(site)
+            profile.send_activation_email(site)
 
         return new_user
     create_inactive_user = transaction.commit_on_success(create_inactive_user)
