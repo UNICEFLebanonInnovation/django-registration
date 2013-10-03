@@ -20,7 +20,7 @@ class RegistrationView(RegistrationView):
     registration_profile = EmailRegistrationProfile
     form_class = EmailRegistrationForm
 
-    def register(self, request, **cleaned_data):
+    def register(self, request, send_email=True, **cleaned_data):
         """
         Given a email address and password, register a new
         user account, which will initially be inactive.
@@ -33,6 +33,7 @@ class RegistrationView(RegistrationView):
 
         user = self.registration_profile.objects.create_inactive_user(
             site,
+            send_email,
             **cleaned_data
         )
 

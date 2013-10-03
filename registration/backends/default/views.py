@@ -46,7 +46,7 @@ class RegistrationView(BaseRegistrationView):
     fields and supported operations.
     
     """
-    def register(self, request, **cleaned_data):
+    def register(self, request, send_email=True, **cleaned_data):
         """
         Given a username, email address and password, register a new
         user account, which will initially be inactive.
@@ -77,6 +77,7 @@ class RegistrationView(BaseRegistrationView):
 
         new_user = self.registration_profile.objects.create_inactive_user(
             site,
+            send_email,
             **cleaned_data
         )
 

@@ -108,7 +108,7 @@ class RegistrationView(RegistrationProfileMixin, _RequestPassingFormView):
         """
         return True
 
-    def register(self, request, **cleaned_data):
+    def register(self, request, send_email=True, **cleaned_data):
         """
         Implement user-registration logic here. Access to both the
         request and the full cleaned_data of the registration form is
