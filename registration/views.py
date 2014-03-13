@@ -25,7 +25,7 @@ class _RequestPassingFormView(FormView):
     A version of FormView which passes extra arguments to certain
     methods, notably passing the HTTP request nearly everywhere, to
     enable finer-grained processing.
-    
+
     """
     def get(self, request, *args, **kwargs):
         # Pass request to get_form_class and get_form for per-request
@@ -69,7 +69,7 @@ class _RequestPassingFormView(FormView):
 class RegistrationView(RegistrationProfileMixin, _RequestPassingFormView):
     """
     Base class for user registration views.
-    
+
     """
     disallowed_url = 'registration_disallowed'
     form_class = RegistrationForm
@@ -81,7 +81,7 @@ class RegistrationView(RegistrationProfileMixin, _RequestPassingFormView):
         """
         Check that user signup is allowed before even bothering to
         dispatch or do other processing.
-        
+
         """
         if not self.registration_allowed(request):
             return redirect(self.disallowed_url)
@@ -90,7 +90,7 @@ class RegistrationView(RegistrationProfileMixin, _RequestPassingFormView):
     def form_valid(self, request, form):
         new_user = self.register(request, **form.cleaned_data)
         success_url = self.get_success_url(request, new_user)
-        
+
         # success_url may be a simple string, or a tuple providing the
         # full argument set for redirect(). Attempting to unpack it
         # tells us which one it is.
@@ -104,7 +104,7 @@ class RegistrationView(RegistrationProfileMixin, _RequestPassingFormView):
         """
         Override this to enable/disable user registration, either
         globally or on a per-request basis.
-        
+
         """
         return True
 
@@ -113,15 +113,15 @@ class RegistrationView(RegistrationProfileMixin, _RequestPassingFormView):
         Implement user-registration logic here. Access to both the
         request and the full cleaned_data of the registration form is
         available here.
-        
+
         """
         raise NotImplementedError
-                
+
 
 class ActivationView(RegistrationProfileMixin, TemplateView):
     """
     Base class for user activation views.
-    
+
     """
     http_method_names = ['get']
     template_name = 'registration/activate.html'
@@ -143,7 +143,7 @@ class ActivationView(RegistrationProfileMixin, TemplateView):
     def activate(self, request, *args, **kwargs):
         """
         Implement account-activation logic here.
-        
+
         """
         raise NotImplementedError
 
