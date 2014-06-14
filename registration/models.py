@@ -59,6 +59,10 @@ class RegistrationManager(models.Manager):
                 user.save()
                 profile.activation_key = self.model.ACTIVATED
                 profile.save()
+
+                # send the activated signal with no request
+                # incase th
+
                 return user
         return False
     
