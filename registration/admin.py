@@ -3,6 +3,7 @@ from django.contrib.sites.models import RequestSite
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
+from registration.signals import user_activated
 from registration.models import (
     RegistrationProfile,
     EmailRegistrationProfile,
@@ -18,14 +19,21 @@ class RegistrationAdmin(admin.ModelAdmin):
 
     def activate_users(self, request, queryset):
         """
-        Activates the selected users, if they are not alrady
+        Activates the selected users, if they are not already
         activated.
         
         """
         for profile in queryset:
-            self.registration_profile.objects.activate_user(
+            activated = self.registration_profile.objects.activate_user(
                 profile.activation_key
             )
+            if activated:
+                # also fire the activated signal
+                user_activated.send(
+                    sender=self.__class__,
+                    user=profile.user,
+                    request=request
+                )
     activate_users.short_description = _("Activate users")
 
     def resend_activation_email(self, request, queryset):
