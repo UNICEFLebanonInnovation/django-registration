@@ -6,7 +6,7 @@ from django.contrib.sites.models import Site
 from django.core import mail
 from django.core import management
 from django.test import TestCase
-from django.utils.hashcompat import sha_constructor
+from hashlib import sha1 as sha_constructor
 from django.contrib.auth.tests.utils import skipIfCustomUser
 
 from registration.compat import User
