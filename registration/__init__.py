@@ -1,4 +1,4 @@
-VERSION = (0, 9, 2, 'beta', 8)
+VERSION = (0, 9, 2, 'beta', 9)
 
 def get_version():
     "Returns a PEP 386-compliant version number from VERSION."
